@@ -1,16 +1,16 @@
-#!/usr/bin/env python3.6
-
+# !/usr/bin/python3
 __AUTHOR__ = 'Florian Roth'
 __VERSION__ = "0.1.0"
 
-import os
-import sys
 import logging
 import argparse
 import subprocess
 import configparser
 from pathlib import Path
 import traceback
+import tkinter
+from tkinter.filedialog import askopenfilename
+import shutil, os, sys
 
 SW_DOWNLOAD_LINKS = {'7zip':
                          {'link': 'http://www.7-zip.org/download.html',
@@ -128,8 +128,43 @@ def cleanUp():
     for file in oldFiles:
         if os.path.exists(file):
             os.remove(file)
+def gui():
+    if not os.path.exists('samples'):
+        os.makedirs('samples')
+
+    top = tkinter.Tk()
+    top.title("Submit File")
+    top.geometry("150x150")
+
+    def file_chooser():
+        file_to_add = askopenfilename()
+        shutil.move(file_to_add,'samples')
+        print("File added: " + file_to_add)
 
 
+    def clear_files():
+        shutil.rmtree('samples')
+        os.makedirs('samples')
+
+
+    def exotron_call():
+        print("RUN EXOTRON")
+        top.destroy()
+
+    B = tkinter.Button(top, text="Clear_files", command=clear_files)
+    B2 = tkinter.Button(top, text="Choose a file", command=file_chooser)
+    B3 = tkinter.Button(top, text="Wrap and submit", command=exotron_call)
+
+    B.place(x=25, y=25)
+    B2.place(x=25, y=55)
+    B3.place(x=25, y=85)
+
+    top.mainloop()
+    return
+
+def submit_file():
+    print("Submit to sandbox of choice...")
+    
 if __name__ == '__main__':
 
     print("                                    ".ljust(80))
@@ -146,10 +181,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ExoTron')
     parser.add_argument('-i', help='Config file', metavar='config-file', default='exotron.cfg')
     parser.add_argument('--debug', action='store_true', default=False, help='Debug output')
+    parser.add_argument('--gui', action='store_true', default=False, help='Management gui')
+    parser.add_argument('--submit', action='store_true', default=False, help='Submit to sandbox')
+
 
     args = parser.parse_args()
 
     # Logging
+    if args.gui:
+        gui()
     logLevel = logging.INFO
     if args.debug:
         logLevel = logging.DEBUG
@@ -191,3 +231,5 @@ if __name__ == '__main__':
     exo.createPackage()
     exo.createSFX()
 
+    if args.submit:
+        submit_file()
