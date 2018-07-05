@@ -36,7 +36,7 @@ class ExoTron(object):
         """
         logging.info("Creating ExoTron Archive ...")
         try:
-            command = [software['7zip'],
+            command = [str(software['7zip']),
                        'a',
                        'archive.7z',
                        'exotron.bat',
